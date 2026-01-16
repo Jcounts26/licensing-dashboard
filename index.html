@@ -1,0 +1,1804 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Licensing Sprint Planning Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh;
+            color: #e0e0e0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        header {
+            margin-bottom: 25px;
+            padding: 15px 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            backdrop-filter: blur(10px);
+        }
+
+        .header-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        h1 {
+            font-size: 1.8rem;
+            background: linear-gradient(90deg, #ff6b6b, #feca57);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin: 0;
+        }
+
+        h2 {
+            font-size: 1.4rem;
+            margin-bottom: 15px;
+        }
+
+        #sprintSelector {
+            padding: 10px 15px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            background: #1a1a2e;
+            color: #fff;
+            font-size: 1rem;
+            min-width: 280px;
+            cursor: pointer;
+        }
+
+        #sprintSelector:focus {
+            outline: none;
+            border-color: #ff6b6b;
+        }
+
+        #sprintSelector option {
+            background: #1a1a2e;
+            color: #fff;
+            padding: 10px;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 16px;
+            padding: 25px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 20px;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .card-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: linear-gradient(90deg, #ff6b6b, #feca57);
+            color: #1a1a2e;
+        }
+
+        .btn-primary:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 20px rgba(255, 107, 107, 0.3);
+        }
+
+        .btn-danger {
+            background: #ff4757;
+            color: white;
+            padding: 4px 8px;
+            font-size: 0.8rem;
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: #e0e0e0;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        /* Absence Key Legend */
+        .absence-key {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 8px;
+        }
+
+        .key-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+        }
+
+        .key-badge {
+            width: 28px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 6px;
+            font-weight: bold;
+            font-size: 0.85rem;
+        }
+
+        .key-V { background: #3498db; color: white; }
+        .key-P { background: #9b59b6; color: white; }
+        .key-S { background: #e74c3c; color: white; }
+        .key-H { background: #f39c12; color: white; }
+        .key-O { background: #95a5a6; color: white; }
+
+        /* Time Off Calendar Table */
+        .calendar-wrapper {
+            overflow-x: auto;
+            margin-bottom: 15px;
+        }
+
+        .calendar-table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 800px;
+        }
+
+        .calendar-table th, .calendar-table td {
+            padding: 8px 4px;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .calendar-table th {
+            background: rgba(255, 255, 255, 0.1);
+            font-weight: 600;
+            font-size: 0.85rem;
+            white-space: nowrap;
+        }
+
+        .calendar-table th.date-header {
+            min-width: 45px;
+        }
+
+        .calendar-table th.employee-header {
+            min-width: 160px;
+            text-align: left;
+            padding-left: 12px;
+        }
+
+        .calendar-table th.total-header {
+            min-width: 60px;
+            background: rgba(255, 107, 107, 0.1);
+        }
+
+        .calendar-table td.employee-cell {
+            text-align: left;
+            padding-left: 12px;
+            font-weight: 500;
+        }
+
+        .calendar-table td.total-cell {
+            background: rgba(255, 107, 107, 0.05);
+            font-weight: 600;
+        }
+
+        .calendar-table tr:hover {
+            background: rgba(255, 255, 255, 0.03);
+        }
+
+        .calendar-table tr.totals-row {
+            background: rgba(255, 107, 107, 0.1);
+            font-weight: bold;
+        }
+
+        .calendar-table tr.totals-row td {
+            border-top: 2px solid rgba(255, 107, 107, 0.3);
+        }
+
+        /* Day cells */
+        .day-cell {
+            cursor: pointer;
+            transition: background 0.2s ease;
+            position: relative;
+        }
+
+        .day-cell:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .day-cell select {
+            width: 100%;
+            padding: 4px;
+            border: none;
+            background: transparent;
+            color: #fff;
+            font-size: 0.85rem;
+            text-align: center;
+            cursor: pointer;
+            appearance: none;
+            -webkit-appearance: none;
+        }
+
+        .day-cell select:focus {
+            outline: 2px solid #ff6b6b;
+            border-radius: 4px;
+        }
+
+        .day-cell select option {
+            background: #1a1a2e;
+            color: #fff;
+        }
+
+        /* Full day time off */
+        .day-cell.has-V { background: rgba(52, 152, 219, 0.3); }
+        .day-cell.has-P { background: rgba(155, 89, 182, 0.3); }
+        .day-cell.has-S { background: rgba(231, 76, 60, 0.3); }
+        .day-cell.has-H { background: rgba(243, 156, 18, 0.3); }
+        .day-cell.has-O { background: rgba(149, 165, 166, 0.3); }
+
+        /* Half day time off - lighter versions */
+        .day-cell.has-half-V { background: linear-gradient(135deg, rgba(52, 152, 219, 0.15) 50%, transparent 50%); }
+        .day-cell.has-half-P { background: linear-gradient(135deg, rgba(155, 89, 182, 0.15) 50%, transparent 50%); }
+        .day-cell.has-half-S { background: linear-gradient(135deg, rgba(231, 76, 60, 0.15) 50%, transparent 50%); }
+        .day-cell.has-half-H { background: linear-gradient(135deg, rgba(243, 156, 18, 0.15) 50%, transparent 50%); }
+        .day-cell.has-half-O { background: linear-gradient(135deg, rgba(149, 165, 166, 0.15) 50%, transparent 50%); }
+
+        /* Goals Section */
+        .goals-list {
+            max-height: 350px;
+            overflow-y: auto;
+        }
+
+        /* Goals Section */
+        .goal-item {
+            display: grid;
+            grid-template-columns: auto 1fr 120px auto;
+            gap: 10px;
+            align-items: center;
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+
+        .goal-item:hover {
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .goal-item input[type="text"] {
+            padding: 8px 12px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 6px;
+            background: rgba(255, 255, 255, 0.05);
+            color: #fff;
+            font-size: 0.9rem;
+            width: 100%;
+        }
+
+        .goal-item select {
+            padding: 8px 12px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 6px;
+            background: rgba(255, 255, 255, 0.05);
+            color: #fff;
+            font-size: 0.9rem;
+        }
+
+        .goal-checkbox {
+            width: 22px;
+            height: 22px;
+            cursor: pointer;
+            accent-color: #feca57;
+        }
+
+        .goal-completed {
+            opacity: 0.6;
+        }
+
+        .goal-completed input[type="text"] {
+            text-decoration: line-through;
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 30px 20px;
+            color: #666;
+        }
+
+        .empty-state .icon {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        /* Share Section */
+        .share-section {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 16px;
+            padding: 25px;
+            margin-top: 20px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .share-url {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+
+        .share-url input {
+            flex: 1;
+            min-width: 300px;
+            padding: 12px 15px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.05);
+            color: #fff;
+            font-size: 0.9rem;
+        }
+
+        /* Toast Notification */
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 15px 25px;
+            background: linear-gradient(90deg, #ff6b6b, #feca57);
+            color: #1a1a2e;
+            border-radius: 8px;
+            font-weight: 500;
+            transform: translateX(150%);
+            transition: transform 0.3s ease;
+            z-index: 1000;
+        }
+
+        .toast.show {
+            transform: translateX(0);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 1.5rem;
+            }
+
+            .goal-item {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Scrollbar Styling */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        /* Sprint Story Points Table */
+        .sprint-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .sprint-table th, .sprint-table td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .sprint-table th {
+            background: rgba(255, 255, 255, 0.08);
+            font-weight: 600;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .sprint-table tr:hover {
+            background: rgba(255, 255, 255, 0.03);
+        }
+
+        .sprint-table tr.totals-row {
+            background: rgba(255, 107, 107, 0.1);
+            font-weight: bold;
+        }
+
+        .sprint-table tr.totals-row td {
+            border-top: 2px solid rgba(255, 107, 107, 0.3);
+        }
+
+        .sprint-table .points-cell {
+            text-align: center;
+            font-weight: 600;
+            min-width: 80px;
+        }
+
+        .sprint-table .stories-cell {
+            text-align: center;
+            min-width: 80px;
+        }
+
+        .sprint-table .focus-cell {
+            font-size: 0.85rem;
+            color: #aaa;
+        }
+
+        .points-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            background: linear-gradient(90deg, #ff6b6b, #feca57);
+            color: #1a1a2e;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 0.9rem;
+        }
+
+        .stories-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            background: rgba(255, 255, 255, 0.15);
+            color: #e0e0e0;
+            border-radius: 10px;
+            font-size: 0.85rem;
+        }
+
+        .sprint-summary {
+            display: flex;
+            gap: 30px;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 8px;
+            flex-wrap: wrap;
+        }
+
+        .sprint-summary-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .sprint-summary-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            background: linear-gradient(90deg, #ff6b6b, #feca57);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .sprint-summary-label {
+            font-size: 0.8rem;
+            color: #888;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Developer Stories Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+        }
+
+        .modal-overlay.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            border-radius: 16px;
+            padding: 25px;
+            max-width: 700px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .modal-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            background: linear-gradient(90deg, #ff6b6b, #feca57);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            color: #888;
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 5px 10px;
+            transition: color 0.2s;
+        }
+
+        .modal-close:hover {
+            color: #ff6b6b;
+        }
+
+        .story-list {
+            list-style: none;
+        }
+
+        .story-item {
+            padding: 12px 15px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            margin-bottom: 10px;
+            border-left: 3px solid #feca57;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .story-item:hover {
+            background: rgba(255, 255, 255, 0.12);
+            border-left-color: #ff6b6b;
+            transform: translateX(3px);
+        }
+
+        .story-item .external-link-icon {
+            float: right;
+            color: #888;
+            font-size: 0.9rem;
+            transition: color 0.2s;
+        }
+
+        .story-item:hover .external-link-icon {
+            color: #feca57;
+        }
+
+        .story-title {
+            font-weight: 500;
+            margin-bottom: 5px;
+        }
+
+        .story-meta {
+            font-size: 0.85rem;
+            color: #888;
+            display: flex;
+            gap: 15px;
+        }
+
+        .story-points-badge {
+            background: linear-gradient(90deg, #ff6b6b, #feca57);
+            color: #1a1a2e;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 0.8rem;
+        }
+
+        .sprint-table tbody tr.dev-row {
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .sprint-table tbody tr.dev-row:hover {
+            background: rgba(255, 107, 107, 0.1);
+        }
+
+        /* Progress Bar Styles */
+        .progress-cell {
+            min-width: 150px;
+        }
+
+        .progress-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .progress-bar-wrapper {
+            flex: 1;
+            height: 12px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 6px;
+            overflow: hidden;
+            min-width: 80px;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            border-radius: 6px;
+            transition: width 0.3s ease, background 0.3s ease;
+        }
+
+        .progress-percentage {
+            font-size: 0.85rem;
+            font-weight: 600;
+            min-width: 40px;
+            text-align: right;
+        }
+    </style>
+</head>
+<body>
+    <!-- SharePoint embed detection banner -->
+    <div id="embedBanner" style="display: none; background: linear-gradient(90deg, #ff6b6b, #feca57); color: #1a1a2e; padding: 12px 20px; text-align: center; font-weight: 600; position: sticky; top: 0; z-index: 9999;">
+        For the best experience, <a href="#" id="openFullscreen" onclick="openInNewTab()" style="color: #1a1a2e; text-decoration: underline; cursor: pointer;">click here to open in full screen</a>
+    </div>
+
+    <div class="container">
+        <header>
+            <div class="header-row">
+                <h1>Licensing Sprint Planning</h1>
+                <select id="sprintSelector" onchange="selectSprint(this.value)">
+                    <option value="">-- Select Sprint --</option>
+                </select>
+            </div>
+        </header>
+
+        <!-- Time Off Calendar Card -->
+        <div class="card">
+            <div class="card-header">
+                <h2 class="card-title">Time Off Tracker</h2>
+            </div>
+
+            <!-- Time Off Summary -->
+            <div class="sprint-summary" id="timeOffSummary">
+                <div class="sprint-summary-item">
+                    <div class="sprint-summary-value" id="totalMembers">0</div>
+                    <div class="sprint-summary-label">Team Members</div>
+                </div>
+                <div class="sprint-summary-item">
+                    <div class="sprint-summary-value" id="totalDaysOff">0</div>
+                    <div class="sprint-summary-label">Total Days Off</div>
+                </div>
+                <div class="sprint-summary-item">
+                    <div class="sprint-summary-value" id="totalHoursOff">0</div>
+                    <div class="sprint-summary-label">Total Hours Off</div>
+                </div>
+                <div class="sprint-summary-item">
+                    <div class="sprint-summary-value" id="devDaysOff">0</div>
+                    <div class="sprint-summary-label">Dev Days Off</div>
+                </div>
+                <div class="sprint-summary-item">
+                    <div class="sprint-summary-value" id="supportDaysOff">0</div>
+                    <div class="sprint-summary-label">Support Days Off</div>
+                </div>
+            </div>
+
+            <!-- Absence Type Key -->
+            <div class="absence-key">
+                <div class="key-item"><span class="key-badge key-V">V</span> Vacation</div>
+                <div class="key-item"><span class="key-badge key-P">P</span> Personal</div>
+                <div class="key-item"><span class="key-badge key-S">S</span> Sick</div>
+                <div class="key-item"><span class="key-badge key-H">H</span> Holiday</div>
+                <div class="key-item"><span class="key-badge key-O">O</span> Other</div>
+            </div>
+
+            <!-- Developers Calendar Table -->
+            <h3 style="margin-bottom: 15px; color: #feca57;">Developers</h3>
+            <div class="calendar-wrapper">
+                <table class="calendar-table" id="devCalendarTable">
+                    <thead id="devCalendarHead"></thead>
+                    <tbody id="devCalendarBody"></tbody>
+                </table>
+            </div>
+
+            <!-- Support Staff Calendar Table -->
+            <h3 style="margin: 25px 0 15px 0; color: #aaa;">Support Staff</h3>
+            <div class="calendar-wrapper">
+                <table class="calendar-table" id="otherCalendarTable">
+                    <thead id="otherCalendarHead"></thead>
+                    <tbody id="otherCalendarBody"></tbody>
+                </table>
+            </div>
+
+        </div>
+
+        <!-- Sprint Story Points Card -->
+        <div class="card">
+            <div class="card-header">
+                <h2 class="card-title">Sprint Story Points</h2>
+                <div style="display: flex; gap: 10px; align-items: center;">
+                    <span id="dataTimestamp" style="font-size: 0.8rem; color: #888;"></span>
+                    <button class="btn btn-secondary" onclick="showRefreshInstructions()" title="How to refresh data">↻ Refresh Data</button>
+                </div>
+            </div>
+
+            <!-- Sprint Summary -->
+            <div class="sprint-summary" id="sprintSummary">
+                <div class="sprint-summary-item">
+                    <div class="sprint-summary-value" id="totalSprintPoints">0</div>
+                    <div class="sprint-summary-label">Total Points</div>
+                </div>
+                <div class="sprint-summary-item">
+                    <div class="sprint-summary-value" id="totalSprintStories">0</div>
+                    <div class="sprint-summary-label">Total Stories</div>
+                </div>
+                <div class="sprint-summary-item">
+                    <div class="sprint-summary-value" id="totalDevs">0</div>
+                    <div class="sprint-summary-label">Developers</div>
+                </div>
+                <div class="sprint-summary-item">
+                    <div class="sprint-summary-value" id="avgPointsPerDev">0</div>
+                    <div class="sprint-summary-label">Avg Pts/Dev</div>
+                </div>
+            </div>
+
+            <!-- Story Points Table -->
+            <table class="sprint-table" id="sprintPointsTable">
+                <thead>
+                    <tr>
+                        <th>Developer</th>
+                        <th class="points-cell">Points</th>
+                        <th class="stories-cell">Stories</th>
+                        <th>Focus Areas</th>
+                        <th class="progress-cell">Progress</th>
+                    </tr>
+                </thead>
+                <tbody id="sprintPointsBody">
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Sprint Goals -->
+        <div class="card">
+            <div class="card-header">
+                <h2 class="card-title">Sprint Goals</h2>
+                <button class="btn btn-primary" onclick="addGoal()">+ Add Goal</button>
+            </div>
+            <div class="goals-list" id="goalsList">
+                <div class="empty-state">
+                    <div class="icon">🎯</div>
+                    <p>No sprint goals defined</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Share Section -->
+        <section class="share-section">
+            <h2 style="margin-bottom: 10px;">Share Dashboard</h2>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                <p style="color: #888; font-size: 0.9rem; margin: 0;">Copy this URL to share with your team. Changes auto-save locally.</p>
+                <span id="lastSavedIndicator" style="font-size: 0.85rem; color: #888;">Not saved yet</span>
+            </div>
+            <div class="share-url">
+                <input type="text" id="shareUrl" readonly>
+                <button class="btn btn-primary" onclick="copyShareUrl()">Copy Link</button>
+                <button class="btn btn-secondary" onclick="resetDashboard()">Reset All</button>
+            </div>
+        </section>
+    </div>
+
+    <!-- Toast Notification -->
+    <div class="toast" id="toast">Link copied to clipboard!</div>
+
+    <!-- Developer Stories Modal -->
+    <div class="modal-overlay" id="storiesModal" onclick="closeStoriesModal(event)">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <h3 class="modal-title" id="modalDevName">Developer Stories</h3>
+                <button class="modal-close" onclick="closeStoriesModal()">&times;</button>
+            </div>
+            <ul class="story-list" id="storiesList">
+            </ul>
+        </div>
+    </div>
+
+    <!-- Refresh Instructions Modal -->
+    <div class="modal-overlay" id="refreshModal" onclick="closeRefreshModal(event)">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <h3 class="modal-title">Refresh Sprint Data</h3>
+                <button class="modal-close" onclick="closeRefreshModal()">&times;</button>
+            </div>
+            <div style="padding: 10px 0;">
+                <p style="margin-bottom: 15px; color: #ccc;">To refresh the sprint data from Azure DevOps, simply ask Claude:</p>
+                <div style="background: rgba(255,255,255,0.1); padding: 15px; border-radius: 8px; margin-bottom: 15px; font-family: monospace;">
+                    "Refresh the eLicensing dashboard sprint data"
+                </div>
+                <p style="color: #888; font-size: 0.9rem; margin-bottom: 10px;">Claude will:</p>
+                <ul style="color: #aaa; font-size: 0.9rem; margin-left: 20px; list-style: disc;">
+                    <li>Fetch current work items from Azure DevOps</li>
+                    <li>Update developer assignments and story points</li>
+                    <li>Update progress percentages based on item states</li>
+                    <li>Refresh the dashboard file automatically</li>
+                </ul>
+                <p style="color: #feca57; font-size: 0.85rem; margin-top: 15px;">Last data refresh: <span id="refreshTimestamp">January 16, 2026</span></p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Sprint data from Azure DevOps - E-Licensing
+        const sprintsFromDevOps = [
+            { name: 'Licensing - Sprint 43', startDate: '2025-12-30', endDate: '2026-01-19' },
+            { name: 'Licensing - Sprint 44', startDate: '2026-01-20', endDate: '2026-02-09' },
+            { name: 'Licensing - Sprint 45', startDate: '2026-02-10', endDate: '2026-03-02' },
+            { name: 'Licensing - Sprint 46', startDate: '2026-03-03', endDate: '2026-03-23' },
+            { name: 'Licensing - Sprint 47', startDate: '2026-03-24', endDate: '2026-04-13' },
+            { name: 'Licensing - Sprint 48', startDate: '2026-04-14', endDate: '2026-05-04' },
+            { name: 'Licensing - Sprint 49', startDate: '2026-05-05', endDate: '2026-05-25' },
+            { name: 'Licensing - Sprint 50', startDate: '2026-05-26', endDate: '2026-06-15' }
+        ];
+
+        // Data store - E-Licensing Team Members
+        let data = {
+            sprintName: '',
+            startDate: '',
+            endDate: '',
+            employees: [
+                { id: 1, name: 'Dan Morris', role: 'dev' },
+                { id: 2, name: 'Aparna Gupta', role: 'dev' },
+                { id: 3, name: 'Vinay Patel', role: 'dev' },
+                { id: 4, name: 'Sandip Pandya', role: 'dev' },
+                { id: 5, name: 'Rajini Matharasi', role: 'dev' },
+                { id: 6, name: 'Tina Kollar', role: 'other' },
+                { id: 7, name: 'Sakthi Sivasamy', role: 'other' },
+                { id: 8, name: 'Anna Ninburg', role: 'other' },
+                { id: 9, name: 'Haresh Prajapti', role: 'other' },
+                { id: 10, name: 'Nosa', role: 'dev' },
+                { id: 11, name: 'Erin Yabu', role: 'other' },
+                { id: 12, name: 'Jonathan Counts', role: 'other' }
+            ],
+            timeOff: {},
+            goals: [],
+            sprintPoints: [],
+            devStories: {}
+        };
+
+        // Sprint-specific data from Azure DevOps
+        const sprintData = {
+            'Licensing - Sprint 43': {
+                sprintPoints: [
+                    { name: 'Rajini Matharasi', points: 25, stories: 7, focus: 'Supervision, Dashboard, Nuget', progress: 86 },
+                    { name: 'Sandip Pandya', points: 23, stories: 5, focus: 'Criminal History, License Status', progress: 96 },
+                    { name: 'Dan Morris', points: 19, stories: 5, focus: 'PDF Preview, Declaration, Upload Docs', progress: 74 },
+                    { name: 'Vinay Patel', points: 18, stories: 4, focus: 'Review Checklist, Personal Info', progress: 94 },
+                    { name: 'Aparna Gupta', points: 14, stories: 4, focus: 'Public Directory, License Gen', progress: 100 },
+                    { name: 'Nosa Odaro', points: 14, stories: 4, focus: 'License Search, Education, Form Builder', progress: 100 }
+                ],
+                devStories: {
+                    'Dan Morris': [
+                        { id: 77344, title: 'Application Component Preview: PDF - after component previews', points: 5, state: 'Closed', type: 'User Story' },
+                        { id: 78867, title: 'Update - Declaration Component', points: 5, state: 'Ready for QA', type: 'User Story' },
+                        { id: 98867, title: 'Upload Documents: Display Section Preview and Application Preview in Application Form Configuration', points: 3, state: 'Ready for QA', type: 'User Story' },
+                        { id: 101865, title: '101863 - Profile banner in edit mode SSN should be masked and viewable based on the permissions', points: 3, state: 'Closed', type: 'User Story' },
+                        { id: 105592, title: 'Course Category and Accreditation Description Display', points: 3, state: 'Active', type: 'User Story' }
+                    ],
+                    'Sandip Pandya': [
+                        { id: 49083, title: 'Application Component: Criminal History Background Check - Applicant Portal', points: 5, state: 'Closed', type: 'User Story' },
+                        { id: 97709, title: 'Application Component: Criminal History Background Check - Reviewer Portal', points: 3, state: 'Closed', type: 'User Story' },
+                        { id: 104241, title: 'License Status Configuration - Grid', points: 5, state: 'Closed', type: 'User Story' },
+                        { id: 105438, title: 'License Status Configuration - Add Status', points: 5, state: 'Closed', type: 'User Story' },
+                        { id: 105911, title: 'Implement Renewal and Expiration Status configuration', points: 5, state: 'Ready for QA', type: 'User Story' }
+                    ],
+                    'Rajini Matharasi': [
+                        { id: 49086, title: 'Application Component: Supervision and Work Experience Hours', points: 3, state: 'Closed', type: 'User Story' },
+                        { id: 101971, title: 'POC - Dashboard Widgets - Number of Complaints in a specific status', points: 5, state: 'Closed', type: 'User Story' },
+                        { id: 102817, title: 'Application Component: Supervision and Work Experience Hours - Add New', points: 5, state: 'Closed', type: 'User Story' },
+                        { id: 102987, title: 'Supervision and Work Experience - Component displayed in Reviewer Side', points: 3, state: 'Closed', type: 'User Story' },
+                        { id: 105725, title: 'Migration of AZBBHE configuration to dev environment', points: 3, state: 'Ready for Development', type: 'User Story' },
+                        { id: 106803, title: 'Licensing Nuget Package - Router project', points: 3, state: 'Ready for QA', type: 'User Story' },
+                        { id: 106802, title: 'Licensing Nuget Package', points: 3, state: 'Closed', type: 'User Story' }
+                    ],
+                    'Aparna Gupta': [
+                        { id: 91492, title: 'Public Directory: Advanced Search', points: 3, state: 'Closed', type: 'User Story' },
+                        { id: 96112, title: 'Employment Component Cleanup/Additions: Staff Portal Application Form Configuration Content Preview', points: 3, state: 'Closed', type: 'User Story' },
+                        { id: 100019, title: 'License Generation - Configuration - Edit/Delete', points: 3, state: 'Closed', type: 'User Story' },
+                        { id: 103947, title: 'License Generation: Expiration Date Configuration', points: 5, state: 'Closed', type: 'User Story' }
+                    ],
+                    'Vinay Patel': [
+                        { id: 60948, title: 'Review Process: Checklist Summary and Progress Saved', points: 5, state: 'Closed', type: 'User Story' },
+                        { id: 100101, title: 'Education Accreditation Minimum Criteria Cleanup', points: 3, state: 'Closed', type: 'User Story' },
+                        { id: 101948, title: 'Application Review Config - Implement checklist/instructions in Applicant Details in Reviewer Portal', points: 5, state: 'Closed', type: 'User Story' },
+                        { id: 105684, title: 'Application Component: Personal Information, Previous Names - Update Personal Information Component', points: 5, state: 'Ready for QA', type: 'User Story' }
+                    ],
+                    'Nosa Odaro': [
+                        { id: 90229, title: 'Add License category in License search criteria', points: 5, state: 'Closed', type: 'User Story' },
+                        { id: 92354, title: 'Application Component: Education Component Content Preview - Update preview to include new fields', points: 3, state: 'Closed', type: 'User Story' },
+                        { id: 98856, title: 'Declarations: Display Section Preview and Application Preview in Application Form Configuration', points: 3, state: 'Closed', type: 'User Story' },
+                        { id: 102709, title: 'Form builder - Labels for Yes/No selected', points: 3, state: 'Closed', type: 'User Story' }
+                    ]
+                }
+            },
+            'Licensing - Sprint 44': {
+                sprintPoints: [
+                    { name: 'Sandip Pandya', points: 33, stories: 7, focus: 'Bulk Messaging, Curriculum Review', progress: 0 },
+                    { name: 'Vinay Patel', points: 29, stories: 6, focus: 'Bulk Messaging, Criminal History, Personal Info', progress: 0 },
+                    { name: 'Dan Morris', points: 25, stories: 7, focus: 'Education, Criminal History, ID Config', progress: 0 },
+                    { name: 'Aparna Gupta', points: 23, stories: 5, focus: 'Professional Licenses, Minimum Criteria', progress: 0 },
+                    { name: 'Rajini Matharasi', points: 26, stories: 6, focus: 'DHS Reporting, Timezone, UI Cleanup', progress: 0 },
+                    { name: 'Nosa Odaro', points: 16, stories: 5, focus: 'Date/Time Display, Breadcrumbs, Due Dates', progress: 0 }
+                ],
+                devStories: {
+                    'Sandip Pandya': [
+                        { id: 102045, title: 'Create Bulk Message - License Search', points: 5, state: 'Ready for Development', type: 'User Story' },
+                        { id: 102046, title: 'Create Bulk Message - Application Search', points: 5, state: 'Ready for Development', type: 'User Story' },
+                        { id: 102047, title: 'Create Bulk Message - Requests Search', points: 5, state: 'Ready for Development', type: 'User Story' },
+                        { id: 103275, title: 'Curriculum Grid Review - Committee Use', points: 5, state: 'Ready for Development', type: 'User Story' },
+                        { id: 106190, title: 'Curriculum Review - Add Curriculum Review', points: 5, state: 'Ready for Development', type: 'User Story' },
+                        { id: 106191, title: 'Curriculum Review - Change Course Category to Grid and checklist - GRID and VIEW', points: 3, state: 'Ready for Development', type: 'User Story' },
+                        { id: 107388, title: 'Curriculum Review - Change Course Category to Grid and checklist - ADD/DELETE/EDIT', points: 5, state: 'Ready for Development', type: 'User Story' }
+                    ],
+                    'Vinay Patel': [
+                        { id: 48934, title: 'Create Bulk Message - Profile Search', points: 5, state: 'Ready for Development', type: 'User Story' },
+                        { id: 101256, title: 'Send Bulk Message/New Message', points: 8, state: 'Ready for Development', type: 'User Story' },
+                        { id: 105430, title: 'Application Component: Criminal History Background Check - Fingerprint Card - Payment', points: 3, state: 'Ready for Development', type: 'User Story' },
+                        { id: 105442, title: 'Criminal History Background Component - Payment Configuration', points: 3, state: 'Ready for Development', type: 'User Story' },
+                        { id: 105933, title: 'Application Component: Personal Information, Previous Names - Changes to Profile', points: 5, state: 'Ready for Development', type: 'User Story' },
+                        { id: 107742, title: 'Send Bulk Message- Schedule Send Button', points: 5, state: 'Ready for Development', type: 'User Story' }
+                    ],
+                    'Dan Morris': [
+                        { id: 88423, title: 'License Configuration: Minimum Criteria Education - Preview in License Level', points: 5, state: 'Ready for Development', type: 'User Story' },
+                        { id: 88424, title: 'Application Component: Education Minimum Criteria, Degree, year, credit hours, accreditation - PDF', points: 3, state: 'Ready for Development', type: 'User Story' },
+                        { id: 100895, title: 'Application: Employment Minimum Criteria - PDF', points: 3, state: 'Ready for Development', type: 'User Story' },
+                        { id: 101873, title: 'Criminal History Background - Component and Application Form Preview', points: 3, state: 'Ready for Development', type: 'User Story' },
+                        { id: 102618, title: 'Updates to ID configuration', points: 5, state: 'Ready for Development', type: 'User Story' },
+                        { id: 102986, title: 'Supervision and Work Experience - Component Preview', points: 3, state: 'Ready for Development', type: 'User Story' },
+                        { id: 107732, title: 'Business operation - add other email option', points: 3, state: 'Ready for Development', type: 'User Story' }
+                    ],
+                    'Aparna Gupta': [
+                        { id: 78869, title: 'Update - Professional Licenses Component Add Screen', points: 5, state: 'Ready for Development', type: 'User Story' },
+                        { id: 102735, title: 'Update - Professional Licenses Component', points: 3, state: 'Ready for Development', type: 'User Story' },
+                        { id: 105506, title: 'Minimum Component: Required Component - Admin Configuration', points: 5, state: 'Ready for Development', type: 'User Story' },
+                        { id: 105576, title: 'Education Minimum Criteria: Acknowledgment Do Not Meet', points: 5, state: 'Ready for Development', type: 'User Story' },
+                        { id: 105937, title: 'Minimum Component: Required Component - Applicant Portal', points: 5, state: 'Ready for Development', type: 'User Story' }
+                    ],
+                    'Rajini Matharasi': [
+                        { id: 87836, title: 'Centralize TimezoneID for the whole application', points: 5, state: 'Ready for Development', type: 'User Story' },
+                        { id: 95926, title: 'DHS Reporting - Application Component (AZ Boards) - Build Component', points: 5, state: 'Ready for Development', type: 'User Story' },
+                        { id: 96153, title: 'DHS Reporting Component - Reviewer', points: 3, state: 'Ready for Development', type: 'User Story' },
+                        { id: 100974, title: 'DHS Reporting - Preview in Component/Applicant Form', points: 3, state: 'Ready for Development', type: 'User Story' },
+                        { id: 100975, title: 'DHS Reporting - Application Component (AZ Boards) - Applicant (Save/Fetch Data)', points: 5, state: 'Ready for Development', type: 'User Story' },
+                        { id: 109409, title: 'UI Cleanup - Sprint 44', points: 5, state: 'Ready for Development', type: 'User Story' }
+                    ],
+                    'Nosa Odaro': [
+                        { id: 86979, title: 'Consistent display of date/time throughout the portal - Applicant Portal', points: 3, state: 'Ready for Development', type: 'User Story' },
+                        { id: 86980, title: 'Consistent display of date/time throughout the portal - Reviewer Portal', points: 5, state: 'Ready for Development', type: 'User Story' },
+                        { id: 86981, title: 'Consistent display of date/time throughout the portal - Admin Portal', points: 3, state: 'Ready for Development', type: 'User Story' },
+                        { id: 103219, title: 'Breadcrumbs', points: 0, state: 'Ready for Development', type: 'User Story' },
+                        { id: 103840, title: 'Due Dates section for Request', points: 5, state: 'Ready for Development', type: 'User Story' }
+                    ]
+                }
+            },
+            'Licensing - Sprint 45': {
+                sprintPoints: [
+                    { name: 'Aparna Gupta', points: 15, stories: 3, focus: 'CEU, Admin Fees', progress: 0 },
+                    { name: 'Nosa Odaro', points: 10, stories: 2, focus: 'Business Operations', progress: 0 },
+                    { name: 'Sandip Pandya', points: 5, stories: 1, focus: 'Payment Success', progress: 0 },
+                    { name: 'Rajini Matharasi', points: 5, stories: 1, focus: 'Profile Correspondence', progress: 0 }
+                ],
+                devStories: {
+                    'Aparna Gupta': [
+                        { id: 81717, title: 'CEU Component: Acknowledgment to not display on CEU section if CEU cycle is deleted', points: 5, state: 'Ready for Development', type: 'User Story' },
+                        { id: 82119, title: 'CEU Requirement Admin - Edit CEU Cycle: Add Delete Cycle Option', points: 5, state: 'Ready for Development', type: 'User Story' },
+                        { id: 85848, title: 'Admin > Fees: Add Payment Type', points: 5, state: 'Ready for Development', type: 'User Story' }
+                    ],
+                    'Nosa Odaro': [
+                        { id: 78199, title: 'Business Operations & Ownership Add/Edit screens - Add additional questions in modals', points: 5, state: 'Ready for Development', type: 'User Story' },
+                        { id: 85849, title: 'Admin: Business Operation Types: Add questions column to the grid', points: 5, state: 'Ready for Development', type: 'User Story' }
+                    ],
+                    'Sandip Pandya': [
+                        { id: 93511, title: 'Payment Success Page - Breakdown payments and display receipt data', points: 5, state: 'Ready for Development', type: 'User Story' }
+                    ],
+                    'Rajini Matharasi': [
+                        { id: 64460, title: 'Profile - Correspondence', points: 5, state: 'Closed', type: 'User Story' }
+                    ]
+                }
+            },
+            'Licensing - Sprint 46': {
+                sprintPoints: [
+                    { name: 'Vinay Patel', points: 3, stories: 1, focus: 'License Certificates', progress: 0 }
+                ],
+                devStories: {
+                    'Vinay Patel': [
+                        { id: 52644, title: 'SPIKE - License Certificates - View a License Certificate', points: 3, state: 'Ready for Development', type: 'User Story' }
+                    ]
+                }
+            },
+            'Licensing - Sprint 47': {
+                sprintPoints: [],
+                devStories: {}
+            },
+            'Licensing - Sprint 48': {
+                sprintPoints: [],
+                devStories: {}
+            },
+            'Licensing - Sprint 49': {
+                sprintPoints: [],
+                devStories: {}
+            },
+            'Licensing - Sprint 50': {
+                sprintPoints: [],
+                devStories: {}
+            }
+        };
+
+        let sprintDates = [];
+
+        // Initialize
+        function init() {
+            // Check URL first (shared links take priority)
+            const params = new URLSearchParams(window.location.search);
+            const hasUrlData = params.get('d');
+
+            if (hasUrlData) {
+                // URL data exists - use it (shared link scenario)
+                loadFromURL();
+            } else {
+                // No URL data - try localStorage
+                const localData = loadFromLocalStorage();
+                if (localData) {
+                    // Merge localStorage data (timeOff, goals, sprintName)
+                    if (localData.timeOff) data.timeOff = localData.timeOff;
+                    if (localData.goals) data.goals = localData.goals;
+                    if (localData.sprintName) data.sprintName = localData.sprintName;
+                }
+            }
+
+            populateSprintSelector();
+
+            if (data.startDate && data.endDate) {
+                generateSprintDates();
+            }
+
+            // Load sprint-specific data if a sprint is selected and data isn't already loaded
+            if (data.sprintName && sprintData[data.sprintName]) {
+                if (!data.sprintPoints || data.sprintPoints.length === 0) {
+                    data.sprintPoints = sprintData[data.sprintName].sprintPoints || [];
+                }
+                if (!data.devStories || Object.keys(data.devStories).length === 0) {
+                    data.devStories = sprintData[data.sprintName].devStories || {};
+                }
+            }
+
+            renderTimeOffCalendar();
+            renderSprintPoints();
+            renderGoals();
+            updateStats();
+            updateURL();
+
+            // Show last saved timestamp
+            const lastSaved = getLastSavedTimestamp();
+            updateLastSavedIndicator(lastSaved);
+        }
+
+        // Populate sprint selector dropdown
+        function populateSprintSelector() {
+            const selector = document.getElementById('sprintSelector');
+            const today = new Date();
+
+            // Find current sprint
+            let currentSprintIdx = sprintsFromDevOps.findIndex(s => {
+                const start = new Date(s.startDate);
+                const end = new Date(s.endDate);
+                return today >= start && today <= end;
+            });
+
+            // If no current sprint found, find next upcoming sprint
+            if (currentSprintIdx === -1) {
+                currentSprintIdx = sprintsFromDevOps.findIndex(s => new Date(s.startDate) > today);
+            }
+
+            sprintsFromDevOps.forEach((sprint, idx) => {
+                const option = document.createElement('option');
+                option.value = idx;
+                option.textContent = sprint.name;
+
+                // Mark current/upcoming sprint
+                if (idx === currentSprintIdx) {
+                    option.textContent += ' (Current)';
+                }
+
+                selector.appendChild(option);
+            });
+
+            // Check if we have URL data (shared link) - respect that selection
+            const params = new URLSearchParams(window.location.search);
+            const hasUrlData = params.get('d');
+
+            if (hasUrlData && data.sprintName) {
+                // Shared link - use the sprint from URL
+                const matchIdx = sprintsFromDevOps.findIndex(s => s.name === data.sprintName);
+                if (matchIdx >= 0) {
+                    selector.value = matchIdx;
+                }
+            } else if (currentSprintIdx >= 0) {
+                // No shared link - always land on current sprint
+                selector.value = currentSprintIdx;
+                selectSprint(currentSprintIdx);
+            }
+        }
+
+        // Handle sprint selection
+        function selectSprint(idx) {
+            if (idx === '' || idx === null) {
+                data.sprintName = '';
+                data.startDate = '';
+                data.endDate = '';
+                data.sprintPoints = [];
+                data.devStories = {};
+                sprintDates = [];
+            } else {
+                const sprint = sprintsFromDevOps[idx];
+                data.sprintName = sprint.name;
+                data.startDate = sprint.startDate;
+                data.endDate = sprint.endDate;
+                generateSprintDates();
+
+                // Load sprint-specific data if available
+                if (sprintData[sprint.name]) {
+                    data.sprintPoints = sprintData[sprint.name].sprintPoints || [];
+                    data.devStories = sprintData[sprint.name].devStories || {};
+                } else {
+                    data.sprintPoints = [];
+                    data.devStories = {};
+                }
+            }
+
+            renderTimeOffCalendar();
+            renderSprintPoints();
+            updateStats();
+            updateURL();
+            saveToLocalStorage(); // Auto-save sprint selection
+        }
+
+        // Generate sprint dates (weekdays only)
+        function generateSprintDates() {
+            if (!data.startDate || !data.endDate) {
+                sprintDates = [];
+                return;
+            }
+
+            sprintDates = [];
+            // Parse dates as local time by splitting the string to avoid timezone issues
+            const startParts = data.startDate.split('-');
+            const endParts = data.endDate.split('-');
+
+            let current = new Date(startParts[0], startParts[1] - 1, startParts[2]);
+            const endDate = new Date(endParts[0], endParts[1] - 1, endParts[2]);
+
+            while (current <= endDate) {
+                const dayOfWeek = current.getDay();
+                if (dayOfWeek !== 0 && dayOfWeek !== 6) {
+                    sprintDates.push(new Date(current));
+                }
+                current.setDate(current.getDate() + 1);
+            }
+        }
+
+        // Format helpers
+        function formatDateISO(date) {
+            // Use local date to avoid timezone issues
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
+
+        function formatDateHeader(date) {
+            return `${date.getMonth() + 1}/${date.getDate()}`;
+        }
+
+        // Compress/decompress for URL
+        const STORAGE_KEY = 'licensingDashboard_data';
+        const STORAGE_TIMESTAMP_KEY = 'licensingDashboard_lastSaved';
+
+        function compressData(obj) {
+            try {
+                return btoa(encodeURIComponent(JSON.stringify(obj)));
+            } catch (e) {
+                console.error('Compression error:', e);
+                return '';
+            }
+        }
+
+        function decompressData(str) {
+            try {
+                return JSON.parse(decodeURIComponent(atob(str)));
+            } catch (e) {
+                console.error('Decompression error:', e);
+                return null;
+            }
+        }
+
+        // localStorage functions for data persistence
+        function saveToLocalStorage() {
+            try {
+                const saveData = {
+                    timeOff: data.timeOff,
+                    goals: data.goals,
+                    sprintName: data.sprintName
+                };
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(saveData));
+                const timestamp = new Date().toISOString();
+                localStorage.setItem(STORAGE_TIMESTAMP_KEY, timestamp);
+                updateLastSavedIndicator(timestamp);
+                return true;
+            } catch (e) {
+                console.error('localStorage save error:', e);
+                return false;
+            }
+        }
+
+        function loadFromLocalStorage() {
+            try {
+                const stored = localStorage.getItem(STORAGE_KEY);
+                if (stored) {
+                    const parsed = JSON.parse(stored);
+                    return parsed;
+                }
+                return null;
+            } catch (e) {
+                console.error('localStorage load error:', e);
+                return null;
+            }
+        }
+
+        function getLastSavedTimestamp() {
+            return localStorage.getItem(STORAGE_TIMESTAMP_KEY);
+        }
+
+        function updateLastSavedIndicator(timestamp) {
+            const indicator = document.getElementById('lastSavedIndicator');
+            if (indicator && timestamp) {
+                const date = new Date(timestamp);
+                const formatted = date.toLocaleString();
+                indicator.textContent = `Last saved: ${formatted}`;
+                indicator.style.color = '#4ecdc4';
+            } else if (indicator) {
+                indicator.textContent = 'Not saved yet';
+                indicator.style.color = '#888';
+            }
+        }
+
+        function clearLocalStorage() {
+            localStorage.removeItem(STORAGE_KEY);
+            localStorage.removeItem(STORAGE_TIMESTAMP_KEY);
+            updateLastSavedIndicator(null);
+        }
+
+        // Load from URL
+        function loadFromURL() {
+            const params = new URLSearchParams(window.location.search);
+            const encoded = params.get('d');
+            if (encoded) {
+                const decoded = decompressData(encoded);
+                if (decoded) {
+                    data = { ...data, ...decoded };
+                }
+            }
+        }
+
+        // Update URL
+        function updateURL() {
+            const encoded = compressData(data);
+            const newUrl = `${window.location.pathname}?d=${encoded}`;
+            window.history.replaceState({}, '', newUrl);
+            document.getElementById('shareUrl').value = window.location.href;
+        }
+
+        // Render time off calendar table
+        function renderTimeOffCalendar() {
+            const devThead = document.getElementById('devCalendarHead');
+            const devTbody = document.getElementById('devCalendarBody');
+            const otherThead = document.getElementById('otherCalendarHead');
+            const otherTbody = document.getElementById('otherCalendarBody');
+
+            if (sprintDates.length === 0) {
+                const emptyHeader = '<tr><th class="employee-header">Employee Name</th><th colspan="3">Select a sprint above</th></tr>';
+                const emptyBody = `<tr><td colspan="4" style="text-align: center; padding: 40px; color: #666;">
+                    <div style="font-size: 2rem; margin-bottom: 10px;">📅</div>
+                    Select a sprint to view the time off grid
+                </td></tr>`;
+                devThead.innerHTML = emptyHeader;
+                devTbody.innerHTML = emptyBody;
+                otherThead.innerHTML = emptyHeader;
+                otherTbody.innerHTML = emptyBody;
+                return;
+            }
+
+            // Header row
+            let headerHTML = '<tr><th class="employee-header">Employee Name</th>';
+            sprintDates.forEach(date => {
+                headerHTML += `<th class="date-header">${formatDateHeader(date)}</th>`;
+            });
+            headerHTML += '<th class="total-header">Days</th><th class="total-header">Hours</th></tr>';
+            devThead.innerHTML = headerHTML;
+            otherThead.innerHTML = headerHTML;
+
+            // Split employees by role
+            const devEmployees = data.employees.filter(emp => emp.role === 'dev');
+            const otherEmployees = data.employees.filter(emp => emp.role !== 'dev');
+
+            // Render developer rows
+            renderEmployeeGroup(devTbody, devEmployees, 'dev');
+
+            // Render other team members rows
+            renderEmployeeGroup(otherTbody, otherEmployees, 'other');
+
+            updateStats();
+        }
+
+        // Helper function to render employee group
+        function renderEmployeeGroup(tbody, employees, groupType) {
+            if (employees.length === 0) {
+                const label = groupType === 'dev' ? 'developers' : 'support staff';
+                tbody.innerHTML = `<tr><td colspan="${sprintDates.length + 3}" style="text-align: center; padding: 30px; color: #666;">
+                    No ${label} added
+                </td></tr>`;
+                return;
+            }
+
+            let bodyHTML = '';
+            let groupTotalDays = 0;
+            let groupTotalHours = 0;
+
+            employees.forEach((emp) => {
+                const empIdx = data.employees.findIndex(e => e.id === emp.id);
+                let totalDays = 0;
+
+                bodyHTML += `<tr>
+                    <td class="employee-cell">
+                        ${emp.name}
+                    </td>`;
+
+                sprintDates.forEach(date => {
+                    const dateKey = `${emp.id}-${formatDateISO(date)}`;
+                    const value = data.timeOff[dateKey] || '';
+                    const cellClass = value ? `has-${value.replace('½', 'half-')}` : '';
+
+                    if (value && value !== '') {
+                        // Half-day values start with ½, count as 0.5
+                        totalDays += value.startsWith('½') ? 0.5 : 1;
+                    }
+
+                    bodyHTML += `<td class="day-cell ${cellClass}">
+                        <select onchange="updateTimeOff('${dateKey}', this.value)">
+                            <option value=""></option>
+                            <option value="V" ${value === 'V' ? 'selected' : ''}>V</option>
+                            <option value="½V" ${value === '½V' ? 'selected' : ''}>½V</option>
+                            <option value="P" ${value === 'P' ? 'selected' : ''}>P</option>
+                            <option value="½P" ${value === '½P' ? 'selected' : ''}>½P</option>
+                            <option value="S" ${value === 'S' ? 'selected' : ''}>S</option>
+                            <option value="½S" ${value === '½S' ? 'selected' : ''}>½S</option>
+                            <option value="H" ${value === 'H' ? 'selected' : ''}>H</option>
+                            <option value="½H" ${value === '½H' ? 'selected' : ''}>½H</option>
+                            <option value="O" ${value === 'O' ? 'selected' : ''}>O</option>
+                            <option value="½O" ${value === '½O' ? 'selected' : ''}>½O</option>
+                        </select>
+                    </td>`;
+                });
+
+                const totalHours = totalDays * 8;
+                groupTotalDays += totalDays;
+                groupTotalHours += totalHours;
+
+                bodyHTML += `<td class="total-cell">${totalDays}</td>`;
+                bodyHTML += `<td class="total-cell">${totalHours}</td></tr>`;
+            });
+
+            // Totals row for this group
+            const label = groupType === 'dev' ? 'Dev Total' : 'Support Staff Total';
+            bodyHTML += `<tr class="totals-row">
+                <td style="text-align: right; padding-right: 15px;">${label}</td>`;
+            sprintDates.forEach(() => {
+                bodyHTML += '<td></td>';
+            });
+            bodyHTML += `<td class="total-cell">${groupTotalDays}</td>`;
+            bodyHTML += `<td class="total-cell">${groupTotalHours}</td></tr>`;
+
+            tbody.innerHTML = bodyHTML;
+        }
+
+        // Update time off
+        function updateTimeOff(key, value) {
+            if (value) {
+                data.timeOff[key] = value;
+            } else {
+                delete data.timeOff[key];
+            }
+            renderTimeOffCalendar();
+            updateURL();
+            saveToLocalStorage(); // Auto-save changes
+        }
+
+        // Update stats
+        function updateStats() {
+            document.getElementById('totalMembers').textContent = data.employees.length;
+
+            let totalDays = 0;
+            let devDays = 0;
+            let supportDays = 0;
+
+            // Calculate time off by role
+            Object.entries(data.timeOff).forEach(([key, value]) => {
+                if (value) {
+                    const empId = parseInt(key.split('-')[0]);
+                    const emp = data.employees.find(e => e.id === empId);
+                    const days = value.startsWith('½') ? 0.5 : 1;
+                    totalDays += days;
+                    if (emp && emp.role === 'dev') {
+                        devDays += days;
+                    } else {
+                        supportDays += days;
+                    }
+                }
+            });
+
+            document.getElementById('totalDaysOff').textContent = totalDays;
+            document.getElementById('totalHoursOff').textContent = totalDays * 8;
+            document.getElementById('devDaysOff').textContent = devDays;
+            document.getElementById('supportDaysOff').textContent = supportDays;
+        }
+
+        // Goals
+        function renderGoals() {
+            const list = document.getElementById('goalsList');
+
+            if (data.goals.length === 0) {
+                list.innerHTML = '<div class="empty-state"><div class="icon">🎯</div><p>No sprint goals defined</p></div>';
+                return;
+            }
+
+            list.innerHTML = data.goals.map((goal, idx) => `
+                <div class="goal-item ${goal.completed ? 'goal-completed' : ''}">
+                    <input type="checkbox" class="goal-checkbox"
+                           ${goal.completed ? 'checked' : ''}
+                           onchange="updateGoal(${idx}, 'completed', this.checked)">
+                    <input type="text" placeholder="Sprint Goal" value="${goal.text}"
+                           onchange="updateGoal(${idx}, 'text', this.value)">
+                    <select onchange="updateGoal(${idx}, 'status', this.value)">
+                        <option value="pending" ${goal.status === 'pending' ? 'selected' : ''}>Pending</option>
+                        <option value="inprogress" ${goal.status === 'inprogress' ? 'selected' : ''}>In Progress</option>
+                        <option value="completed" ${goal.status === 'completed' ? 'selected' : ''}>Completed</option>
+                        <option value="blocked" ${goal.status === 'blocked' ? 'selected' : ''}>Blocked</option>
+                    </select>
+                    <button class="btn btn-danger" onclick="removeGoal(${idx})">×</button>
+                </div>
+            `).join('');
+        }
+
+        function addGoal() {
+            data.goals.push({ id: Date.now(), text: '', completed: false, status: 'pending' });
+            renderGoals();
+            updateURL();
+            saveToLocalStorage(); // Auto-save changes
+        }
+
+        function updateGoal(idx, field, value) {
+            if (data.goals[idx]) {
+                data.goals[idx][field] = value;
+                if (field === 'completed' && value) {
+                    data.goals[idx].status = 'completed';
+                }
+                renderGoals();
+                updateURL();
+                saveToLocalStorage(); // Auto-save changes
+            }
+        }
+
+        function removeGoal(idx) {
+            data.goals.splice(idx, 1);
+            renderGoals();
+            updateURL();
+            saveToLocalStorage(); // Auto-save changes
+        }
+
+        // Sprint Points
+        // Get progress bar color based on percentage (only applies color for current sprint)
+        function getProgressColor(percentage, isCurrentSprint) {
+            if (!isCurrentSprint) {
+                return 'rgba(255, 255, 255, 0.3)'; // Gray for non-current sprints
+            }
+            if (percentage >= 100) {
+                return '#2ecc71'; // Green for complete
+            } else if (percentage >= 75) {
+                // Yellow-green to green (75-99%)
+                const ratio = (percentage - 75) / 25;
+                const r = Math.round(180 - (180 - 46) * ratio);
+                const g = Math.round(190 + (204 - 190) * ratio);
+                const b = Math.round(60 + (113 - 60) * ratio);
+                return `rgb(${r}, ${g}, ${b})`;
+            } else if (percentage >= 50) {
+                // Orange to yellow-green (50-74%)
+                const ratio = (percentage - 50) / 25;
+                const r = Math.round(243 - (243 - 180) * ratio);
+                const g = Math.round(156 + (190 - 156) * ratio);
+                const b = Math.round(18 + (60 - 18) * ratio);
+                return `rgb(${r}, ${g}, ${b})`;
+            } else if (percentage >= 25) {
+                // Red-orange to orange (25-49%)
+                const ratio = (percentage - 25) / 25;
+                const r = Math.round(231 + (243 - 231) * ratio);
+                const g = Math.round(76 + (156 - 76) * ratio);
+                const b = Math.round(60 - (60 - 18) * ratio);
+                return `rgb(${r}, ${g}, ${b})`;
+            } else {
+                // Red (0-24%)
+                const ratio = percentage / 25;
+                const r = Math.round(220 + (231 - 220) * ratio);
+                const g = Math.round(53 + (76 - 53) * ratio);
+                const b = Math.round(69 - (69 - 60) * ratio);
+                return `rgb(${r}, ${g}, ${b})`;
+            }
+        }
+
+        // Check if selected sprint is the current sprint
+        function isCurrentSprintSelected() {
+            const today = new Date();
+            const currentSprintIdx = sprintsFromDevOps.findIndex(s => {
+                const start = new Date(s.startDate);
+                const end = new Date(s.endDate);
+                return today >= start && today <= end;
+            });
+            if (currentSprintIdx === -1) return false;
+            return data.sprintName === sprintsFromDevOps[currentSprintIdx].name;
+        }
+
+        function renderSprintPoints() {
+            const tbody = document.getElementById('sprintPointsBody');
+            const isCurrentSprint = isCurrentSprintSelected();
+
+            if (!data.sprintPoints || data.sprintPoints.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; padding: 30px; color: #666;">
+                    No sprint points data available
+                </td></tr>`;
+                document.getElementById('totalSprintPoints').textContent = '0';
+                document.getElementById('totalSprintStories').textContent = '0';
+                document.getElementById('totalDevs').textContent = '0';
+                document.getElementById('avgPointsPerDev').textContent = '0';
+                return;
+            }
+
+            let totalPoints = 0;
+            let totalStories = 0;
+            let totalProgress = 0;
+
+            let html = data.sprintPoints.map(dev => {
+                totalPoints += dev.points || 0;
+                totalStories += dev.stories || 0;
+                const progress = dev.progress || 0;
+                totalProgress += progress;
+                const progressColor = getProgressColor(progress, isCurrentSprint);
+                const devNameKey = dev.name.replace(/\s+/g, '_');
+                return `<tr class="dev-row" onclick="showDevStories('${dev.name}')" title="Click to view assigned stories">
+                    <td><strong>${dev.name}</strong></td>
+                    <td class="points-cell"><span class="points-badge">${dev.points}</span></td>
+                    <td class="stories-cell"><span class="stories-badge">${dev.stories}</span></td>
+                    <td class="focus-cell">${dev.focus || ''}</td>
+                    <td class="progress-cell">
+                        <div class="progress-container">
+                            <div class="progress-bar-wrapper">
+                                <div class="progress-bar-fill" style="width: ${progress}%; background: ${progressColor};"></div>
+                            </div>
+                            <span class="progress-percentage" style="color: ${progressColor};">${progress}%</span>
+                        </div>
+                    </td>
+                </tr>`;
+            }).join('');
+
+            // Calculate average progress
+            const avgProgress = data.sprintPoints.length > 0 ? Math.round(totalProgress / data.sprintPoints.length) : 0;
+            const avgProgressColor = getProgressColor(avgProgress, isCurrentSprint);
+
+            // Add totals row
+            html += `<tr class="totals-row">
+                <td><strong>Total</strong></td>
+                <td class="points-cell"><span class="points-badge">${totalPoints}</span></td>
+                <td class="stories-cell"><span class="stories-badge">${totalStories}</span></td>
+                <td></td>
+                <td class="progress-cell">
+                    <div class="progress-container">
+                        <div class="progress-bar-wrapper">
+                            <div class="progress-bar-fill" style="width: ${avgProgress}%; background: ${avgProgressColor};"></div>
+                        </div>
+                        <span class="progress-percentage" style="color: ${avgProgressColor};">${avgProgress}%</span>
+                    </div>
+                </td>
+            </tr>`;
+
+            tbody.innerHTML = html;
+
+            // Update summary stats
+            const devCount = data.sprintPoints.length;
+            document.getElementById('totalSprintPoints').textContent = totalPoints;
+            document.getElementById('totalSprintStories').textContent = totalStories;
+            document.getElementById('totalDevs').textContent = devCount;
+            document.getElementById('avgPointsPerDev').textContent = devCount > 0 ? Math.round(totalPoints / devCount) : 0;
+        }
+
+        // Share
+        function copyShareUrl() {
+            const input = document.getElementById('shareUrl');
+            input.select();
+            document.execCommand('copy');
+
+            const toast = document.getElementById('toast');
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 2000);
+        }
+
+        function resetDashboard() {
+            if (confirm('Are you sure you want to reset all data? This will also clear locally saved data.')) {
+                data = {
+                    sprintName: '',
+                    startDate: '',
+                    endDate: '',
+                    employees: [],
+                    timeOff: {},
+                    goals: [],
+                    sprintPoints: [],
+                    devStories: {}
+                };
+                document.getElementById('sprintSelector').value = '';
+                sprintDates = [];
+                clearLocalStorage(); // Clear saved data
+                renderTimeOffCalendar();
+                renderSprintPoints();
+                renderGoals();
+                updateStats();
+                updateURL();
+            }
+        }
+
+        // Developer Stories Modal
+        function showDevStories(devName) {
+            const modal = document.getElementById('storiesModal');
+            const titleEl = document.getElementById('modalDevName');
+            const listEl = document.getElementById('storiesList');
+
+            titleEl.textContent = `${devName}'s Assigned Stories`;
+
+            const stories = data.devStories[devName] || [];
+
+            if (stories.length === 0) {
+                listEl.innerHTML = `<li class="story-item" style="text-align: center; color: #888;">
+                    No stories loaded. Stories will be populated from Azure DevOps.
+                </li>`;
+            } else {
+                listEl.innerHTML = stories.map(story => `
+                    <li class="story-item" onclick="openWorkItem(${story.id})" title="Click to open in Azure DevOps">
+                        <span class="external-link-icon">↗</span>
+                        <div class="story-title">${story.id ? `#${story.id} - ` : ''}${story.title}</div>
+                        <div class="story-meta">
+                            <span><span class="story-points-badge">${story.points || 0} pts</span></span>
+                            <span>State: ${story.state || 'New'}</span>
+                            ${story.type ? `<span>Type: ${story.type}</span>` : ''}
+                        </div>
+                    </li>
+                `).join('');
+            }
+
+            modal.classList.add('show');
+        }
+
+        function openWorkItem(workItemId) {
+            if (workItemId) {
+                const url = `https://dev.azure.com/mi-devops/Mi-Case_eLicensing/_workitems/edit/${workItemId}`;
+                window.open(url, '_blank');
+            }
+        }
+
+        function closeStoriesModal(event) {
+            if (event && event.target !== event.currentTarget) return;
+            document.getElementById('storiesModal').classList.remove('show');
+        }
+
+        // Refresh Modal Functions
+        function showRefreshInstructions() {
+            document.getElementById('refreshModal').classList.add('show');
+        }
+
+        function closeRefreshModal(event) {
+            if (event && event.target !== event.currentTarget) return;
+            document.getElementById('refreshModal').classList.remove('show');
+        }
+
+        // Close modal on Escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeStoriesModal();
+                closeRefreshModal();
+            }
+        });
+
+        // Detect if running in SharePoint iframe/embed and show banner
+        function checkIfEmbedded() {
+            const isEmbedded = window.self !== window.top ||
+                               window.innerWidth < 900 ||
+                               window.location.href.includes('sharepoint.com') ||
+                               document.referrer.includes('sharepoint.com');
+
+            const banner = document.getElementById('embedBanner');
+            if (banner && isEmbedded) {
+                banner.style.display = 'block';
+            }
+        }
+
+        function openInNewTab() {
+            // Get the current URL without any iframe wrapper
+            const currentUrl = window.location.href;
+            window.open(currentUrl, '_blank');
+        }
+
+        // Check on load
+        checkIfEmbedded();
+
+        // Initialize
+        init();
+    </script>
+</body>
+</html>
