@@ -1,0 +1,46 @@
+name: Refresh Dashboard Data
+
+on:
+  # Run every weekday at 8:00 AM EST (13:00 UTC)
+  schedule:
+    - cron: '0 13 * * 1-5'
+
+  # Allow manual trigger from GitHub UI
+  workflow_dispatch:
+    inputs:
+      sprint:
+        description: 'Sprint to refresh (e.g., "Licensing - Sprint 43" or "current" for current sprint)'
+        required: false
+        default: 'current'
+
+jobs:
+  refresh-data:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Fetch Azure DevOps Data
+        env:
+          AZURE_DEVOPS_PAT: ${{ secrets.AZURE_DEVOPS_PAT }}
+          AZURE_DEVOPS_ORG: 'mi-devops'
+          AZURE_DEVOPS_PROJECT: 'Mi-Case_eLicensing'
+          SPRINT_NAME: ${{ github.event.inputs.sprint || 'current' }}
+        run: node scripts/refresh-data.js
+
+      - name: Commit and push changes
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add index.html
+          git diff --staged --quiet || git commit -m "Auto-refresh dashboard data from Azure DevOps"
+          git push

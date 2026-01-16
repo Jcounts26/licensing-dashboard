@@ -1,0 +1,10 @@
+{
+  "name": "elicensing-dashboard",
+  "version": "1.0.0",
+  "description": "Sprint Planning Dashboard for eLicensing team",
+  "scripts": {
+    "refresh": "node scripts/refresh-data.js"
+  },
+  "author": "Jonathan Counts",
+  "license": "MIT"
+}
